@@ -10,17 +10,15 @@ Adverse Childhood Experiences and Asthma in the United States: A Cross-Sectional
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-setwd("/Users/maiacunningham/Library/CloudStorage/OneDrive-UW/Spring 2024/EPI 514/EPI 514 Working Directory")
-
 library(haven)
 library(dplyr)
 library(tidyverse)
 
-# read in 2022 data
+### read in 2022 data
 LLCP22 <- read_xpt("LLCP2022.XPT")
-#read in version 1
+###read in version 1
 LLCP22v1 <- read_xpt("LLCP22V1.XPT")
-# read in version 2
+### read in version 2
 LLCP22v2 <- read_xpt("LLCP22V2.XPT")
 
 write.csv(LLCP22, "LLCP22.csv", row.names = FALSE)
