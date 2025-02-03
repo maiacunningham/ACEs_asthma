@@ -1,0 +1,62 @@
+---
+title: "514_Data Combining"
+output: html_document
+date: "2024-04-23"
+---
+
+```{r}
+rm(list=ls())
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(haven)
+library(dplyr)
+library(tidyverse)
+library(waldo)
+
+LLCP22 <- read.csv("LLCP22.csv")
+LLCP22v1 <- read.csv("LLCP22v1.csv")
+LLCP22v2 <- read.csv("LLCP22v2.csv")
+
+```
+
+```{r}
+## extract data for each state (FIPS codes) that did ACE module
+
+names(LLCP22)[names(LLCP22) == "X_STATE"] <- "state"
+names(LLCP22v1)[names(LLCP22v1) == "X_STATE"] <- "state"
+names(LLCP22v2)[names(LLCP22v2) == "X_STATE"] <- "state"
+
+LLCP <- LLCP22[LLCP22$state %in% c(5, 12, 19, 32, 38, 41, 46, 51),]
+LLCP$finalwt <- LLCP$llcpwt
+
+LLCPv1 <- LLCP22v1[LLCP22v1$state %in% c(4, 39),]
+LLCPv1$finalwt <- LLCPv1$llcpwtv1
+
+LLCPv2 <- LLCP22v2[LLCP22v2$state %in% c(34, 40),]
+LLCPv2$finalwt <- LLCPv2$llcpwtv2
+
+# use compare from waldo package to see differences between columns for LLCP, LLCPv1, LLCPv2
+compare(names(LLCPv2), names(LLCP))
+
+# delete columns from LLCP that do not exist in LLCPv1 or LLCPv2
+LLCP <- LLCP %>% select(-c("COVACGET", "COVIDINT"))
+
+# rename columns in LLCPv1 and LLCPv2 to match LLCP
+names(LLCPv1)[names(LLCPv1) == "X_CLCWTV1"] <- "X_CLLCPWT"
+names(LLCPv2)[names(LLCPv2) == "X_CLCWTV2"] <- "X_CLLCPWT"
+names(LLCPv1)[names(LLCPv1) == "X_LCPWTV1"] <- "X_LLCPWT"
+names(LLCPv2)[names(LLCPv2) == "X_LCPWTV2"] <- "X_LLCPWT"
+
+#combine datasets
+ACEsdata <- rbind(LLCP, LLCPv1, LLCPv2)
+
+# save new .csv file
+ACEsdata <- select(ACEsdata, ASTHMA3, state, X_IMPRACE, SEXVAR, X_AGE_G, X_EDUCAG, X_INCOMG1, ACEDEPRS, ACEDRINK, ACEDRUGS, ACEPRISN, ACEDIVRC, ACEPUNCH, ACEHURT1, ACESWEAR, ACETOUCH, ACETTHEM, ACEHVSEX, ACEADSAF, ACEADNED)
+
+write.csv(ACEsdata, "ACEsdata.csv", row.names = FALSE)
+
+```
+
